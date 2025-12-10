@@ -34,15 +34,15 @@ class MovieManagementSystem:
             'primary_accent': "#3b9ad9"      # Header foreground
         }
     
-        # Fonts required for Treeview style
+        # fonts required for Treeview style
         self.font = font.Font(family='Segoe UI', size=10)
         self.font_bold = font.Font(family='Segoe UI', size=10, weight='bold')
     
-        # Configure Styles
+        # configure Styles
         style = ttk.Style()
         style.theme_use('default')
 
-        # Configure combobox colors
+        # configure combobox colors
         self.root.option_add('*TCombobox*Listbox.background', self.colors['input_bg'])
         self.root.option_add('*TCombobox*Listbox.foreground', self.colors['color_fg'])
         self.root.option_add('*TCombobox*Listbox.selectBackground', self.colors['primary_accent'])
@@ -226,7 +226,7 @@ class MovieManagementSystem:
 
         self.create_table(table_frame)
 
-        # Bind selection event
+        # bind selection event
         self.movie_table.bind("<<TreeviewSelect>>", self.on_tree_select)
 
     # create input field
@@ -267,13 +267,11 @@ class MovieManagementSystem:
             'insertbackground': self.colors['color_fg']
         }
         
-        # Apply validation if command is provided (Fix #5)
         if validate_cmd:
             entry_options['validate'] = 'key'
-            # %P means the value of the entry if the edit is allowed
-            entry_options['validatecommand'] = (validate_cmd, '%P')
+            entry_options['validatecommand'] = (validate_cmd, '%P') # %P means the value of the entry if the edit is allowed
 
-        # Use the options dictionary which includes validation settings
+        # use the options dictionary which includes validation settings
         entry = tk.Entry(parent, **entry_options)
         entry.grid(row=row, column=column, padx=(140,5), pady=5, sticky='w')
 
@@ -293,13 +291,13 @@ class MovieManagementSystem:
             command=command
         )
         # btn.pack(side="left", padx=10) 
-        # btn.pack(side="left", padx=10, pady=5, expand=True)  # Use expand=True to center the buttons
+        # btn.pack(side="left", padx=10, pady=5, expand=True)  ## use expand=True to center the buttons
         btn.pack(side="left", padx=10, pady=5) 
 
     def create_table(self, parent):
         style = ttk.Style()
         
-        # Configure the Treeview itself (rows)
+        # configure the Treeview itself (rows)
         style.configure(
             "Treeview", 
             background=self.colors['secondary_bg'],
@@ -311,7 +309,7 @@ class MovieManagementSystem:
         )
         style.map('Treeview', background=[('selected', self.colors['primary_accent'])])
         
-        # Configure the Treeview Headings
+        # configure the Treeview Headings
         style.configure(
             "Treeview.Heading", 
             background=self.colors['tertiary_bg'],
@@ -329,14 +327,14 @@ class MovieManagementSystem:
         tree_frame = tk.Frame(parent, bg=self.colors['primary_bg'])
         tree_frame.pack(fill='both', expand=True)
 
-        # Scrollbars
+        # scrollbars
         # x_tree_scroll = ttk.Scrollbar(tree_frame, orient='horizontal')
         # x_tree_scroll.pack(side='bottom', fill='x')
 
         y_tree_scroll = ttk.Scrollbar(tree_frame, orient='vertical')
         y_tree_scroll.pack(side='right', fill='y')
         
-        # Create the Treeview
+        # create the Treeview
         self.movie_table = ttk.Treeview(
             tree_frame, 
             yscrollcommand=y_tree_scroll.set, 
@@ -348,14 +346,14 @@ class MovieManagementSystem:
         y_tree_scroll.config(command=self.movie_table.yview)
         # x_tree_scroll.config(command=self.movie_table.xview)
 
-        # Define Columns 
+        # define columns 
         self.movie_table['columns'] = (
             "db_id", "Title", "Genre", "Director", "Year", "Duration", 
             "Rating", "Language", "Status", "Remarks"
         )
         
-        # Configure Column Properties
-        self.movie_table.column("#0", width=0, stretch='no') # Default hidden column
+        # configure column properties
+        self.movie_table.column("#0", width=0, stretch='no') # default hidden column
         self.movie_table.column("db_id", anchor='center', width=0, stretch='no')
 
         self.movie_table.column("Title", anchor='w', width=200)
@@ -368,7 +366,7 @@ class MovieManagementSystem:
         self.movie_table.column("Status", anchor='w', width=100)
         self.movie_table.column("Remarks", anchor='w', width=300)
 
-        # Configure Headings
+        # configure Headings
         self.movie_table.heading("#0", text="", anchor='w')
         self.movie_table.heading("db_id", text="", anchor='center')
         self.movie_table.heading("Title", text="Title", anchor='w')
@@ -413,7 +411,7 @@ class MovieManagementSystem:
         self.selected_id = None
         self.status_label.config(text="Cleared all input fields.")
     
-        # Clear selection in tree
+        # clear selection in tree
         for item in self.movie_table.selection():
             self.movie_table.selection_remove(item)
 
@@ -428,7 +426,7 @@ class MovieManagementSystem:
             for item in self.movie_table.get_children():
                 self.movie_table.delete(item) 
 
-            # Fetch all movies
+            # fetch all movies
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM movies ORDER BY title ASC")
             rows = cursor.fetchall()
@@ -461,11 +459,11 @@ class MovieManagementSystem:
             self.clear_fields()
             return
         
-        # Get selected item
+        # get selected item
         item = selection[0]
         values = self.movie_table.item(item, 'values')
 
-        # Load data into fields
+        # load data into fields
         self.selected_id = values[0]
         self.title_var.set(values[1])
         self.genre_var.set(values[2])
@@ -480,10 +478,10 @@ class MovieManagementSystem:
 
     def add_movie(self):
         """Add new movie to database""" 
-        # Get and validate input
+        # get and validate input
         data = self.get_input_values()
 
-        # Validation
+        # validation
         if not all([data['title'], data['genre'], data['director'], data['release_year'], data['duration'], data['rating'], data['language'], data['status']]):
             messagebox.showwarning("Validation Error", "All fields are required!")
             return
@@ -493,7 +491,7 @@ class MovieManagementSystem:
             messagebox.showwarning("Validation Error", "Release Year must be a valid 4-digit year!")
             return
 
-        # Validation for duration (numeric check)
+        # validation for duration (numeric check)
         try:
             duration = int(data['duration'])
         except ValueError:
@@ -506,7 +504,7 @@ class MovieManagementSystem:
         
         try:
             cursor = conn.cursor()
-            # Insert data into the movies table
+            # insert data into the movies table
             cursor.execute(
                 """
                 INSERT INTO movies (title, genre, director, release_year, duration, rating, language, status, remarks)
@@ -537,7 +535,7 @@ class MovieManagementSystem:
         # get validate input
         data = self.get_input_values()
 
-        # Validation
+        # validation
         if not all([data['title'], data['genre'], data['director'], data['release_year'], data['duration'], data['rating'], data['language'], data['status']]):
             messagebox.showwarning("Validation Error", "All fields are required!")
             return      
@@ -547,7 +545,7 @@ class MovieManagementSystem:
             messagebox.showwarning("Validation Error", "Release Year must be a valid 4-digit year!")
             return
 
-        # Validation for duration (numeric check)
+        # validation for duration (numeric check)
         try:
             duration = int(data['duration'])
         except ValueError:
@@ -589,7 +587,7 @@ class MovieManagementSystem:
             )
             return
     
-        # Confirm deletion
+        # confirm deletion
         response = messagebox.askyesno(
         "Confirm Delete",
         "Are you sure you want to delete this movie record?\nThis action cannot be undone."
@@ -598,7 +596,7 @@ class MovieManagementSystem:
         if not response:
             return
 
-        # Delete from database
+        # delete from database
         conn = self.create_connection()
         if not conn:
             return
