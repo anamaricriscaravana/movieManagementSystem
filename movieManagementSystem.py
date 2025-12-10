@@ -42,7 +42,7 @@ class MovieManagementSystem:
         style = ttk.Style()
         style.theme_use('default')
 
-        # Configure Combobox Colors
+        # Configure combobox colors
         self.root.option_add('*TCombobox*Listbox.background', self.colors['input_bg'])
         self.root.option_add('*TCombobox*Listbox.foreground', self.colors['color_fg'])
         self.root.option_add('*TCombobox*Listbox.selectBackground', self.colors['primary_accent'])
@@ -251,8 +251,8 @@ class MovieManagementSystem:
                 width=26
             )
             combobox.grid(row=row, column=column, padx=(140,5), pady=5, sticky='w')
-            if values:
-                text_variable.set(values[0])
+            # if values:
+            #     text_variable.set(values[0])
             return
 
         entry_options = {
