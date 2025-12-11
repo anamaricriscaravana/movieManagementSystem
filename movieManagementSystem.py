@@ -5,6 +5,79 @@ import sqlite3
 
 DB_FILE = "movie_management.db"
 
+class LoginWindow:
+    def __init__(self, master):
+        self.master = master
+        self.master.title("Movie Management System")
+        self.master.geometry("1100x700")
+        self.master.configure(bg="#1b1f3b")
+        self.master.resizable(True, True)
+
+        # center login window
+        self.master.update_idletasks()
+        width = self.master.winfo_width()
+        height = self.master.winfo_height()
+        x = (self.master.winfo_screenwidth() // 2) - (width // 2)
+        y = (self.master.winfo_screenheight() // 2) - (height // 2)
+        self.master.geometry(f'{width}x{height}+{x}+{y}')
+
+        self.username_var = tk.StringVar()
+        self.password_var = tk.StringVar()
+        
+        # hardcoded username and password
+        self.VALID_USERNAME = "admin"
+        self.VALID_PASSWORD = "admin"
+        
+        self.create_login_widgets()
+
+        self.master.bind('<Return>', self.handle_enter_key)
+
+    def create_login_widgets(self):
+        login_frame = tk.Frame(self.master, bg="#1b1f3b", padx=50, pady=50, borderwidth=1, relief='sunken')
+        login_frame.pack(expand=True)
+        login_frame.place(relx=0.5, rely=0.5, anchor='center')
+
+        tk.Label(login_frame, text="LOG IN", font=('Segoe UI', 18, 'bold'), 
+                 bg="#1b1f3b", fg="white").pack(pady=10)
+
+        # Username
+        tk.Label(login_frame, text="Username:", font=('Segoe UI', 10, 'bold'), 
+                 bg="#1b1f3b", fg="white", anchor='w').pack(fill='x', pady=(5, 0))
+        ttk.Entry(login_frame, textvariable=self.username_var, width=45).pack(pady=2)
+
+        # Password
+        tk.Label(login_frame, text="Password:", font=('Segoe UI', 10, 'bold'), 
+                 bg="#1b1f3b", fg="white", anchor='w').pack(fill='x', pady=(5, 0))
+        ttk.Entry(login_frame, textvariable=self.password_var, show="*", width=45).pack(pady=2)
+
+        # Login Button
+        tk.Button(login_frame, text="Log in", command=self.attempt_login, 
+                  font=('Segoe UI', 10, 'bold'), bg="#2e3355", fg="white", 
+                  relief='flat', bd=0, cursor="hand2", width=10).pack(pady=20)
+
+    def handle_enter_key(self, event):
+        self.attempt_login()
+
+    def attempt_login(self):
+        username = self.username_var.get().strip()
+        password = self.password_var.get().strip()
+
+        if not username or not password:
+            return 
+        
+        if username == self.VALID_USERNAME and password == self.VALID_PASSWORD:
+            # messagebox.showinfo("Success", "Login successful!")
+            self.master.destroy()  
+            self.open_main_app() 
+
+        else:
+            messagebox.showerror("Login Error", "Incorrect username or password. Please try again.")
+
+    def open_main_app(self):
+        root = tk.Tk()
+        app = MovieManagementSystem(root)
+        root.mainloop()
+
 class MovieManagementSystem:
     def __init__(self, root):
         self.root = root
@@ -617,6 +690,6 @@ class MovieManagementSystem:
                 conn.close()
 
 if __name__ == "__main__":
-    window = tk.Tk()
-    app = MovieManagementSystem(window)
-    window.mainloop()
+    login_root = tk.Tk()
+    login_app = LoginWindow(login_root)
+    login_root.mainloop()
