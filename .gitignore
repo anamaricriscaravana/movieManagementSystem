@@ -1,0 +1,10 @@
+__pycache__/
+*.spec
+build/
+dist/
+.vscode/
+.env
+.venv
+__init__.py
+uploads/
+*.db
