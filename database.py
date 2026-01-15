@@ -1,11 +1,28 @@
+import os
+from pathlib import Path
 import sqlite3
 
-DB_FILE = "movie_management_system2.db"
+APP_NAME = "CineTrack"
+
+app_data = Path(os.getenv('APPDATA')) / APP_NAME
+app_data.mkdir(parents=True, exist_ok=True)
+
+DB_FILE = app_data / ".syscache"
 
 def create_connection():
-    conn = sqlite3.connect(DB_FILE)
-    conn.row_factory = sqlite3.Row  
-    return conn                     
+    try:
+        conn = sqlite3.connect(DB_FILE)
+        conn.row_factory = sqlite3.Row  
+        conn.execute("PRAGMA foreign_keys = 1")
+        conn.execute("PRAGMA journal_mode = WAL")
+        conn.execute("PRAGMA synchronous = NORMAL")
+        conn.execute("PRAGMA temp_store = MEMORY")
+        conn.execute("PRAGMA secure_delete = 1")
+
+        return conn                     
+    except Exception as e:
+        print(f"Database connection error: {e}")
+        return None
 
 def initialize_database():
     conn = create_connection()
