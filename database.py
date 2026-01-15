@@ -4,11 +4,14 @@ import sqlite3
 
 APP_NAME = "CineTrack"
 
+# Create application data directory in APPDATA
 app_data = Path(os.getenv('APPDATA')) / APP_NAME
 app_data.mkdir(parents=True, exist_ok=True)
 
+# Database file path
 DB_FILE = app_data / ".syscache"
 
+# Create a new SQLite database connection with optimized PRAGMA settings.
 def create_connection():
     try:
         conn = sqlite3.connect(DB_FILE)
@@ -24,6 +27,7 @@ def create_connection():
         print(f"Database connection error: {e}")
         return None
 
+# Create required tables ('users', 'movies') if they do not exist.
 def initialize_database():
     conn = create_connection()
     cursor = conn.cursor()
@@ -55,18 +59,21 @@ def initialize_database():
     conn.commit()
     conn.close()
 
+# Retrieve the profile image path for a given user.
 def get_user_profile_path(user_id):
     conn = create_connection()
     user = conn.execute("SELECT profile_path FROM users WHERE id = ?", (user_id,)).fetchone()
     conn.close()
     return user['profile_path'] if user else None
 
+# Update the file path of the user's profile picture.
 def update_profile_path(user_id, path):
     conn = create_connection()
     conn.execute("UPDATE users SET profile_path = ? WHERE id = ?", (path, user_id))
     conn.commit()
     conn.close()
 
+# Securely update a user's username.
 def update_username_secure(user_id, current_pass, new_username):
     conn = create_connection()
     try:
@@ -86,6 +93,7 @@ def update_username_secure(user_id, current_pass, new_username):
     finally:
         conn.close()
 
+# Securely update a user's password.
 def update_password_secure(user_id, current_pass, new_pass):
     conn = create_connection()
     try:
@@ -102,12 +110,14 @@ def update_password_secure(user_id, current_pass, new_pass):
     finally:
         conn.close()
 
+# Clear a user's profile image path in the database.
 def clear_user_profile_path(user_id):
     conn = create_connection()
     conn.execute("UPDATE users SET profile_path = '' WHERE id = ?", (user_id,))
     conn.commit()
     conn.close()
 
+# Insert a new movie record associated with a user.
 def add_movie_to_db(user_id, title, genre, director, year, duration, rating, language, status, remarks):
     conn = create_connection()
     query = """INSERT INTO movies (user_id, title, genre, director, release_year, 
@@ -116,6 +126,7 @@ def add_movie_to_db(user_id, title, genre, director, year, duration, rating, lan
     conn.commit()
     conn.close()
 
+# Update an existing movie record by its ID.
 def update_movie_in_db(movie_id, title, genre, director, year, duration, rating, language, status, remarks):
     conn = create_connection()
     query = """UPDATE movies SET title=?, genre=?, director=?, release_year=?, 
@@ -124,12 +135,14 @@ def update_movie_in_db(movie_id, title, genre, director, year, duration, rating,
     conn.commit()
     conn.close()
 
+# Delete a movie record by its ID.
 def delete_movie_from_db(movie_id):
     conn = create_connection()
     conn.execute("DELETE FROM movies WHERE id=?", (movie_id,))
     conn.commit()
     conn.close()
 
+# Returns a list of matching rows.
 def search_movies(user_id, search_val):
     conn = create_connection()
     s = f'%{search_val.lower()}%'
@@ -148,6 +161,7 @@ def search_movies(user_id, search_val):
     conn.close()
     return results
 
+# Verify user credentials for login.
 def verify_user_login(username, password):
     conn = create_connection()
     user = conn.execute(
@@ -157,6 +171,7 @@ def verify_user_login(username, password):
     conn.close()
     return user 
 
+# Retrieve a simplified list of movies for CSV or PDF export.
 def get_movies_for_export(user_id):
     conn = create_connection()
     movies = conn.execute(
@@ -166,6 +181,7 @@ def get_movies_for_export(user_id):
     conn.close()
     return movies
 
+# Register a new user in the database.
 def register_user(username, password):
     conn = create_connection()
     try:
@@ -179,6 +195,7 @@ def register_user(username, password):
     finally:
         conn.close()
 
+# Fetch all movies for a user, sorted alphabetically by title.
 def get_user_movies(user_id):
     conn = create_connection()
     query = """

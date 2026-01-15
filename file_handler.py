@@ -1,6 +1,7 @@
 import csv
 
 def save_to_csv(path, movie_data):
+    # Save a list of movies to a CSV file.
     with open(path, mode='w', newline='', encoding='utf-8') as f:
         writer = csv.writer(f)
         writer.writerow(['Title', 'Genre', 'Year', 'Status'])
@@ -8,6 +9,7 @@ def save_to_csv(path, movie_data):
             writer.writerow(list(m))
 
 def save_to_pdf(path, movie_data):
+    # Save a list of movies to a CSV file.
     from reportlab.pdfgen import canvas
     from reportlab.lib.pagesizes import letter
 

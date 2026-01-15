@@ -5,10 +5,13 @@ import database
 
 class Authentication:
     def __init__(self, container, controller):
+        # Initialize with main container and app controller reference.
         self.container = container
         self.controller = controller
         self.colors = controller.colors
 
+    # Create a labeled input field with optional password masking.
+    # Includes an icon on the left side.
     def _create_auth_entry(self, parent, label, var, icon, is_pass=False):
         tk.Label(parent, text=label, font=('Segoe UI', 10, 'bold'), bg=self.colors['primary_bg'], fg="white", anchor='w').pack(fill='x', pady=(10, 0))
         f = tk.Frame(parent, bg="white", padx=5, pady=2)
@@ -18,6 +21,7 @@ class Authentication:
         if is_pass: e.config(show="*")
         e.pack(side='left', fill='x', expand=True, padx=5)
 
+    # Render the login page with username/password fields and action buttons.
     def render_login(self):
         frame = tk.Frame(self.container, bg=self.colors['primary_bg'])
         frame.place(relx=0.5, rely=0.5, anchor="center")
@@ -30,6 +34,7 @@ class Authentication:
         tk.Button(box, text="Log in", command=self.controller.attempt_login, font=('Segoe UI', 11, 'bold'), bg=self.controller.colors['add_button'], fg="black", relief='flat', width=20, cursor="hand2").pack(pady=25)
         tk.Button(box, text="Create an Account", command=self.controller.show_register_page, font=('Segoe UI', 9, 'underline'), bg=self.colors['primary_bg'], fg="white", borderwidth=0, cursor="hand2").pack()
 
+    # Render the registration page with username/password fields and action buttons.
     def render_register(self):
         frame = tk.Frame(self.container, bg=self.colors['primary_bg'])
         frame.place(relx=0.5, rely=0.5, anchor="center")
@@ -42,6 +47,7 @@ class Authentication:
         tk.Button(box, text="Sign Up", command=self.controller.attempt_register, font=('Segoe UI', 11, 'bold'), bg=self.controller.colors['add_button'], fg="black", relief='flat', width=20, cursor="hand2").pack(pady=20)
         tk.Button(box, text="Back to Login", command=self.controller.show_login_page, font=('Segoe UI', 9, 'underline'), bg=self.colors['primary_bg'], fg="white", borderwidth=0, cursor="hand2").pack()
 
+    # Open a popup window for changing the username securely.
     def open_change_username_popup(self):
         win = tk.Toplevel(self.controller.root)
         win.withdraw()
@@ -82,6 +88,7 @@ class Authentication:
         win.deiconify()
         win.grab_set()
 
+    # Open a popup window for changing the password securely.
     def open_change_password_popup(self):
         win = tk.Toplevel(self.controller.root)
         win.withdraw()
@@ -123,6 +130,7 @@ class Authentication:
         win.deiconify()
         win.grab_set()
           
+    # Render the account settings page with security and data options.
     def render_settings(self):
         header = tk.Frame(self.container, bg=self.colors['primary_bg'], pady=20) 
         header.pack(fill="x", padx=40)
@@ -170,6 +178,8 @@ class Authentication:
                 bg=self.colors['update_button'], fg="black", relief="flat", cursor="hand2", 
                 command=self.controller.export_as_csv).pack(pady=5)
         
+    # Process changing username.
+    # Validates input, checks confirmation, updates DB, and logs out user.
     def process_username_update(self, current_pass, new_username, confirm_pass, win):
         trimmed_u = new_username.strip()
         if not current_pass or not trimmed_u or not confirm_pass:
@@ -196,6 +206,8 @@ class Authentication:
         else:
             messagebox.showerror("Error", message)
 
+    # Process changing password.
+    # Validates input, confirms action, updates DB, and logs out user.
     def process_password_update(self, current_pass, new_pass, confirm_pass, win):
         if not current_pass or not new_pass or not confirm_pass:
             return messagebox.showwarning("Warning", "All fields are required.")

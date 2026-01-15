@@ -3,11 +3,13 @@ import api_handler
 import ui_helpers
 
 class ProfileView:
+    # Initialize the profile view with container (parent frame) and controller (app logic reference).
     def __init__(self, container, controller):
         self.container = container
         self.controller = controller
         self.colors = controller.colors
 
+    # Render the full profile view including header, profile photo, username, and stats.
     def render(self):
         self.controller._clear_view()
         
@@ -53,6 +55,7 @@ class ProfileView:
         stats = api_handler.get_movie_stats(self.controller.current_user_id, self.controller.database_module)
         self._render_stats_box(right_side, stats)
 
+    # Render a stats box displaying tracked movies and status counts.
     def _render_stats_box(self, parent, stats):
         stats_box = tk.Frame(parent, bg=self.colors['secondary_bg'], padx=30, pady=30, 
                              highlightbackground="white", highlightthickness=1)

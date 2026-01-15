@@ -49,9 +49,7 @@ class MovieManagementSystem:
         self.show_login_page()
 
     def _setup_variables(self):
-        self.current_user_id, 
-        self.current_username, 
-        self.selected_id = None, None, None
+        self.current_user_id, self.current_username, self.selected_id = None, None, None
         
         # Authentication fields
         self.username_var, self.password_var, self.confirm_password_var = tk.StringVar(), tk.StringVar(), tk.StringVar()
@@ -64,20 +62,24 @@ class MovieManagementSystem:
         # Poster and trailer state
         self.raw_poster_image, self.current_poster, self.current_trailer_url = None, None, None
 
+     # Deselect table and clear input fields when clicking outside table or entries
     def deselect_table(self, event):
         widget = event.widget
         if "treeview" not in str(widget).lower() and "entry" not in str(widget).lower() and "combobox" not in str(widget).lower():
             self.clear_fields()
 
+    # Destroy all widgets in the main container
     def _clear_view(self):
         for widget in self.container.winfo_children(): widget.destroy()
 
+    # Get and process the current user's profile image
     def get_profile_image(self, size=(150, 150)):
         path = database.get_user_profile_path(self.current_user_id)
         if path:
             return ui_helpers.process_profile_image(path, size)
         return None
-
+    
+    # Change user profile photo using file dialog
     def change_profile_photo(self):
         file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg *.jpeg *.png")])
         if not file_path: return
@@ -90,6 +92,7 @@ class MovieManagementSystem:
 
         self.show_profile_view()
 
+    # Remove user profile photo and revert to default
     def remove_profile_photo(self):
         try:
             current_path = database.get_user_profile_path(self.current_user_id)
@@ -106,17 +109,20 @@ class MovieManagementSystem:
         except Exception as e:
             messagebox.showerror("Error", f"Could not verify profile status: {str(e)}")
 
+    # Display login page view
     def show_login_page(self):
         self._clear_view(); self.clear_auth_fields()
         self.root.bind('<Return>', lambda e: self.attempt_login())
         authentication.Authentication(self.container, self).render_login()
 
+    # Display registration page view
     def show_register_page(self):
         self._clear_view()
         self.clear_auth_fields() 
         self.root.bind('<Return>', lambda e: self.attempt_register())
         authentication.Authentication(self.container, self).render_register()
 
+    # Display main application interface with header, input, and content sections
     def show_main_app(self):
         self._clear_view(); self.root.unbind('<Return>')
         config.apply_styles(self.root, self.font, self.font_bold)
@@ -130,15 +136,19 @@ class MovieManagementSystem:
             w.bind("<Button-1>", self.deselect_table)
         self.refresh_table()
 
+    # Display the profile view page
     def show_profile_view(self):
         profile_view.ProfileView(self.container, self).render()
 
+    # Open popup for changing username
     def open_change_username(self):
         authentication.Authentication(self.container, self).open_change_username_popup()
 
+     # Open popup for changing password
     def open_change_password(self):
         authentication.Authentication(self.container, self).open_change_password_popup()
 
+    # Validate and save a new username securely
     def _secure_save_username(self, current_pass, new_username, confirm_pass, win):
         trimmed_u = new_username.strip()
 
@@ -163,6 +173,7 @@ class MovieManagementSystem:
         else:
             messagebox.showerror("Error", message)
     
+    # Validate and update user password securely
     def _handle_password_update(self, current_pass, new_pass, confirm_pass, win):
         if not current_pass or not new_pass or not confirm_pass:
             return messagebox.showwarning("Warning", "All fields are required.")
@@ -183,11 +194,13 @@ class MovieManagementSystem:
             self.show_login_page()
         else:
             messagebox.showerror("Error", message)
-                        
+
+    # Display settings page           
     def show_settings_page(self):
         self._clear_view()
         authentication.Authentication(self.container, self).render_settings()
 
+    # Export user's movie list as a CSV file
     def export_as_csv(self):
         path = filedialog.asksaveasfilename(
             defaultextension=".csv", 
@@ -202,6 +215,7 @@ class MovieManagementSystem:
             except Exception as e:
                 messagebox.showerror("Error", f"Export failed: {str(e)}")
 
+    # Export user's movie list as a PDF file
     def export_as_pdf(self):
         path = filedialog.asksaveasfilename(
             defaultextension=".pdf", 
@@ -217,12 +231,14 @@ class MovieManagementSystem:
             except Exception as e:
                 messagebox.showerror("Error", f"PDF Export failed: {str(e)}")
 
+    # Build the top header with app title and profile menu button
     def _build_header(self):
         header = tk.Frame(self.container, bg=self.colors['primary_bg']); header.pack(fill="x", padx=25, pady=10)
         tk.Label(header, text="🎬CINETRACK", font=('Segoe UI', 24, 'bold'), bg=self.colors['primary_bg'], fg="white").pack(side="left")
         profile_btn = tk.Button(header, text=f"{self.current_username} 👤 ▼", font=('Segoe UI', 10, 'bold'), bg=self.colors['secondary_bg'], fg="white", relief="flat", padx=10, cursor="hand2"); profile_btn.pack(side="right"); profile_btn.bind("<Button-1>", self.show_profile_menu)
         return header
 
+    # Build input section for manual movie entry and API data display
     def _build_input_section(self):
         main_f = tk.Frame(self.container, bg=self.colors['primary_bg'])
         main_f.pack(fill="x", padx=25, pady=5)
@@ -259,6 +275,7 @@ class MovieManagementSystem:
             ui_helpers.create_input_field(box2, label, var, row, self.font_bold, self.font, self.colors, is_api=True)
         return main_f
 
+    # Build action buttons (Add, Update, Delete, Clear, More Like This) and search bar
     def _build_action_bar(self):
         frame = tk.Frame(self.container, bg=self.colors['primary_bg'], pady=15)
         frame.pack(fill="x", padx=25)
@@ -281,6 +298,7 @@ class MovieManagementSystem:
         sb_container.pack(side="right")
         return frame
 
+    # Build main content area with movie table and poster preview
     def _build_content_area(self):
         main_c = tk.Frame(self.container, bg=self.colors['primary_bg']); main_c.pack(fill="both", expand=True, padx=25, pady=(0,15))
         self.preview = tk.Frame(main_c, bg=self.colors['secondary_bg'], width=300); self.preview.pack(side="left", fill="both", padx=(0, 15)); self.preview.pack_propagate(False); self.preview.bind("<Configure>", self.on_preview_resize)
@@ -296,6 +314,7 @@ class MovieManagementSystem:
     def update_movie(self): ui_helpers.update_movie_logic(self.selected_id, self.title_var.get(), self.release_year_var.get(), self.status_var.get(), self.remarks_var.get(), self.refresh_table)
     def delete_movie(self): ui_helpers.delete_movie_logic(self.selected_id, self.refresh_table, self.clear_fields)
 
+    # Refresh the movie table with current database data
     def refresh_table(self):
         for i in self.movie_table.get_children(): 
             self.movie_table.delete(i)
@@ -303,6 +322,7 @@ class MovieManagementSystem:
         for r in rows: 
             self.movie_table.insert('', 'end', values=tuple(r))
 
+    # Filter movie table based on search entry
     def filter_table(self, event=None):
         val = self.search_entry.get().strip().lower()
         if val == "search" or val == "":
@@ -314,6 +334,7 @@ class MovieManagementSystem:
         for r in rows:
             self.movie_table.insert('', 'end', values=tuple(r))
 
+    # Clear all input fields and poster preview
     def clear_fields(self):
         for v in [self.title_var, self.genre_var, self.director_var, self.release_year_var, self.duration_var, self.rating_var, self.language_var, self.status_var, self.remarks_var]: 
             v.set("")
@@ -324,6 +345,7 @@ class MovieManagementSystem:
         if hasattr(self, 'movie_table'):
             self.movie_table.selection_remove(self.movie_table.selection())
 
+    # Populate input fields when a movie table row is selected
     def on_tree_select(self, event):
         sel = self.movie_table.selection()
         if not sel: return
@@ -332,14 +354,17 @@ class MovieManagementSystem:
         self.poster_lab.config(image="", text="Loading Poster..."); self.watch_btn.config(state="disabled", bg="gray")
         api_handler.load_movie_details(item[1], item[4], {'genre': self.genre_var, 'director': self.director_var, 'duration': self.duration_var, 'rating': self.rating_var, 'language': self.language_var}, {'on_trailer_load': self._update_trailer_state, 'on_poster_load': self._update_poster_state})
 
+    # Update trailer URL state (thread-safe)
     def _update_trailer_state(self, url):
         self.root.after(0, lambda: self._safe_update_trailer(url))
 
+    # Enable or disable trailer button based on URL availability
     def _safe_update_trailer(self, url):
         self.current_trailer_url = url
         if self.watch_btn.winfo_exists():
             self.watch_btn.config(state="normal" if url else "disabled", bg=self.colors['delete_button'] if url else "gray")
 
+    # Update poster image state when loaded from API
     def _update_poster_state(self, poster):
         if poster:
             self.raw_poster_image = poster
@@ -348,25 +373,31 @@ class MovieManagementSystem:
             self.raw_poster_image = None
             self.root.after(0, lambda: self.poster_lab.config(image="", text="No Poster Loaded"))
 
+    # Resize poster image to fit preview frame
     def update_poster_size(self):
         if not self.raw_poster_image: return
         pw, ph = self.preview.winfo_width() - 40, self.preview.winfo_height() - 130
         img = self.raw_poster_image.copy(); img.thumbnail((pw, ph), Image.Resampling.LANCZOS); self.current_poster = ImageTk.PhotoImage(img); self.poster_lab.config(image=self.current_poster, text="")
 
+    # Handle preview frame resize event for poster
     def on_preview_resize(self, event):
         if self.raw_poster_image: self.update_poster_size()
 
+    # Open trailer URL in web browser
     def open_trailer(self):
         if self.current_trailer_url: webbrowser.open(self.current_trailer_url)
 
+    # Clear username and password fields
     def clear_auth_fields(self):
         self.username_var.set("")
         self.password_var.set("")
         self.confirm_password_var.set("")
 
+    # Confirm logout and return to login page
     def confirm_logout(self):
         if messagebox.askyesno("Logout", "Confirm log out?"): self.show_login_page()
 
+    # Show dropdown profile menu (Profile, Settings, Logout)
     def show_profile_menu(self, event):
         menu_commands = {
             'profile': self.show_profile_view,
@@ -381,6 +412,7 @@ class MovieManagementSystem:
         )
         menu.post(event.x_root, event.y_root)
 
+    # Attempt login and load main app if credentials are valid
     def attempt_login(self, event=None):
         u = self.username_var.get()
         p = self.password_var.get()
@@ -393,6 +425,7 @@ class MovieManagementSystem:
         else:
             messagebox.showerror("Error", "Invalid Login. Please check your username and password.")
 
+    # Attempt user registration with validation
     def attempt_register(self, event=None):
         u = self.username_var.get().strip()
         p = self.password_var.get()
@@ -414,9 +447,11 @@ class MovieManagementSystem:
         else:
             messagebox.showerror("Registration Failed", message)
 
+    # Display recommendations popup for similar movies
     def show_similar_movies_popup(self):
         recommendations_view.RecommendationsView(self).show()
 
+    # Render list of recommended movies in the popup
     def _render_rec_list(self, parent, loader, recs):
         loader.destroy()
         
@@ -485,6 +520,7 @@ class MovieManagementSystem:
         parent.winfo_toplevel().protocol("WM_DELETE_WINDOW", 
             lambda: (canvas.unbind_all("<MouseWheel>"), parent.winfo_toplevel().destroy()))
 
+    # Add a recommended movie directly to the user's list
     def _direct_add(self, movie):
         title = movie['title']
         year = movie.get('release_date', '')[:4]
@@ -502,6 +538,7 @@ class MovieManagementSystem:
         )
         print(f"Success", f"'{title}' added successfully!")
 
+    # Quickly fill input fields with movie data from API
     def _quick_fill(self, movie_data):
         self.title_var.set(movie_data['title'])
         self.release_year_var.set(movie_data['release_date'][:4])

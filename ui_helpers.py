@@ -8,24 +8,29 @@ import config
 import api_handler
 import database
 
+# Center the window on the screen.
 def center_window(root, width=1100, height=700):
     root.update_idletasks()
     x = (root.winfo_screenwidth() // 2) - (width // 2)
     y = (root.winfo_screenheight() // 2) - (height // 2)
     root.geometry(f'{width}x{height}+{x}+{y}')
 
+# Update a label with the current time every second.
 def update_clock(label, root):
     if not label.winfo_exists(): return
     label.config(text=time.strftime('%H:%M:%S\n%B %d, %Y'))
     root.after(1000, lambda: update_clock(label, root))
 
+# Update a label with the current time every second.
 def validate_year_input(P):
     return (P.isdigit() and len(P) <= 4) or P == ""
 
+# Create a labeled frame for grouping input fields.
 def create_input_box(parent, title, font_bold, colors):
     box = tk.LabelFrame(parent, text=f" {title} ", font=font_bold, 
                         bg=colors['secondary_bg'], fg="white", padx=20, pady=15)
     
+    # Configure column weights for proper layout
     box.grid_columnconfigure(0, weight=1)  
     box.grid_columnconfigure(1, weight=0)  
     box.grid_columnconfigure(2, weight=0)  
@@ -57,12 +62,14 @@ def create_input_field(parent, label, var, row, font_bold, font_std, colors,
     ent.grid(row=row, column=2, padx=10, pady=5, sticky='w')
     return ent
 
+# Create a standard action button.
 def create_action_button(parent, text, color, font, command):
     return tk.Button(
         parent, text=text, bg=color, font=font, width=15,
         relief='flat', cursor="hand2", command=command
     )
 
+# Create a search entry field with placeholder text.
 def create_search_bar(parent, colors, font, on_key_release):
     sb_frame = tk.Frame(parent, bg=colors['input_bg'], 
                         highlightbackground=colors['entry_border'], 
@@ -73,12 +80,14 @@ def create_search_bar(parent, colors, font, on_key_release):
     entry.pack(side="left", padx=10, pady=5)
     entry.insert(0, "Search")
     
+    # Placeholder behavior
     entry.bind("<FocusIn>", lambda e: entry.delete(0, tk.END) if entry.get() == "Search" else None)
     entry.bind("<FocusOut>", lambda e: entry.insert(0, "Search") if entry.get() == "" else None)
     entry.bind("<KeyRelease>", on_key_release)
     
     return sb_frame, entry
 
+# Create dropdown menu for profile actions.
 def create_profile_menu(root, colors, font, commands):
     menu = tk.Menu(root, tearoff=0, bg=colors['secondary_bg'], fg="white", font=font)
     menu.add_command(label="My Profile & Stats", command=commands.get('profile'))
@@ -87,6 +96,7 @@ def create_profile_menu(root, colors, font, commands):
     menu.add_command(label="Logout", command=commands.get('logout'))
     return menu
 
+# Process profile image to circular format with border.
 def process_profile_image(image_path, size=(150, 150)):
     if not image_path or not os.path.exists(image_path): return None
     try:
@@ -109,6 +119,7 @@ def process_profile_image(image_path, size=(150, 150)):
     except:
         return None
 
+# Create the Treeview table for displaying movies with scrollbars.
 def setup_movie_table(parent):
     y_s = ttk.Scrollbar(parent, orient="vertical")
     y_s.pack(side='right', fill='y')
@@ -130,6 +141,7 @@ def setup_movie_table(parent):
     x_s.config(command=table.xview)
     return table
 
+# Add a new movie to the database using API metadata.
 def add_movie_logic(user_id, title, year, status, remarks, refresh_callback, clear_callback):
     if not title or not year: 
         return messagebox.showwarning("Warning", "Title and Year required!")
@@ -143,7 +155,8 @@ def add_movie_logic(user_id, title, year, status, remarks, refresh_callback, cle
         messagebox.showinfo(f"Success", f"'{title}' added successfully!")
         refresh_callback()
         clear_callback()
-    
+
+# Update an existing movie's data with API metadata.
 def update_movie_logic(selected_id, title, year, status, remarks, refresh_callback):
     if not selected_id: 
         return messagebox.showwarning("Error", "Select a record first.")
@@ -161,6 +174,7 @@ def update_movie_logic(selected_id, title, year, status, remarks, refresh_callba
     else:
         messagebox.showerror("Error", "API Error. Could not fetch metadata.")
 
+# Delete a movie from the database after user confirmation.
 def delete_movie_logic(selected_id, refresh_callback, clear_callback):
     if not selected_id: return
     

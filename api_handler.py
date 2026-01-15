@@ -5,10 +5,12 @@ from PIL import Image
 from collections import Counter
 import config
 
+# API keys
 TMDB_API_KEY = "d758564ccd7127ab4e0e38901e85d76a"
 OMDB_API_KEY = "d8257053" 
 IMAGE_BASE_URL = "https://image.tmdb.org/t/p/w500"
 
+# Fetch movie metadata from OMDb and TMDB APIs.
 def fetch_movie_metadata(title, year):
     try:
         omdb_url = f"http://www.omdbapi.com/?t={title}&y={year}&apikey={OMDB_API_KEY}"
@@ -28,6 +30,7 @@ def fetch_movie_metadata(title, year):
         return {"omdb": omdb_data, "poster": poster_img, "trailer": trailer_url}
     except: return None
 
+# Load movie metadata asynchronously and update GUI variables.
 def load_movie_details(title, year, vars_dict, callbacks):
     def task():
         data = fetch_movie_metadata(title, year)
@@ -44,6 +47,7 @@ def load_movie_details(title, year, vars_dict, callbacks):
             for var in vars_dict.values(): var.set("N/A")
     threading.Thread(target=task, daemon=True).start()
 
+# Compute statistics for a user's movie collection.
 def get_movie_stats(current_user_id, database_module):
     conn = database_module.create_connection()
     data = conn.execute("SELECT genre, status FROM movies WHERE user_id=?", (current_user_id,)).fetchall()
@@ -56,6 +60,7 @@ def get_movie_stats(current_user_id, database_module):
     fav_genre = Counter(genres).most_common(1)[0][0] if genres else "N/A"
     return {"total": len(data), "fav_genre": fav_genre, "status_counts": Counter(status_list), "no_status": no_status_count, "raw_data": data}
 
+# Fetch a list of similar/recommended movies from TMDB based on a given title.
 def get_similar_movies(movie_title):
     try:
         clean_title = movie_title.split('(')[0].strip() 
