@@ -61,6 +61,12 @@ def get_user_profile_path(user_id):
     conn.close()
     return user['profile_path'] if user else None
 
+def update_profile_path(user_id, path):
+    conn = create_connection()
+    conn.execute("UPDATE users SET profile_path = ? WHERE id = ?", (path, user_id))
+    conn.commit()
+    conn.close()
+
 def update_username_secure(user_id, current_pass, new_username):
     conn = create_connection()
     try:

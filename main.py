@@ -23,13 +23,25 @@ class MovieManagementSystem:
         self.root.minsize(1000, 700)
         self.root.configure(bg=config.COLORS['primary_bg'])
         self.database_module = database
-        
+
+        # Initialize database
         database.initialize_database()
+
+        # Load window icon
+        base_folder = os.path.dirname(__file__)
+        image_path = os.path.join(base_folder, 'movie.png')
+        logo_img = tk.PhotoImage(file=image_path)
+        self.root.iconphoto(False, logo_img)
+
+        # Fonts and colors
         self.colors = config.COLORS
         self.font = font.Font(family='Segoe UI', size=10)
         self.font_bold = font.Font(family='Segoe UI', size=10, weight='bold')
 
+        # State variables
         self._setup_variables()
+
+        # Main container for dynamic views
         self.container = tk.Frame(self.root, bg=self.colors['primary_bg'])
         self.container.pack(fill="both", expand=True)
 
@@ -37,11 +49,19 @@ class MovieManagementSystem:
         self.show_login_page()
 
     def _setup_variables(self):
-        self.current_user_id, self.current_username, self.selected_id = None, None, None
+        self.current_user_id, 
+        self.current_username, 
+        self.selected_id = None, None, None
+        
+        # Authentication fields
         self.username_var, self.password_var, self.confirm_password_var = tk.StringVar(), tk.StringVar(), tk.StringVar()
+
+        # Movie input fields
         self.title_var, self.genre_var, self.director_var = tk.StringVar(), tk.StringVar(), tk.StringVar()
         self.release_year_var, self.duration_var, self.rating_var = tk.StringVar(), tk.StringVar(), tk.StringVar()
         self.language_var, self.status_var, self.remarks_var = tk.StringVar(), tk.StringVar(), tk.StringVar()
+
+        # Poster and trailer state
         self.raw_poster_image, self.current_poster, self.current_trailer_url = None, None, None
 
     def deselect_table(self, event):
@@ -60,12 +80,15 @@ class MovieManagementSystem:
 
     def change_profile_photo(self):
         file_path = filedialog.askopenfilename(filetypes=[("Image files", "*.jpg *.jpeg *.png")])
-        if file_path:
-            if not os.path.exists("uploads"): os.makedirs("uploads")
-            dest = os.path.join("uploads", f"profile_{self.current_user_id}{os.path.splitext(file_path)[1]}")
-            shutil.copy(file_path, dest)
-            conn = database.create_connection(); conn.execute("UPDATE users SET profile_path = ? WHERE id = ?", (dest, self.current_user_id)); conn.commit(); conn.close()
-            self.show_profile_view()
+        if not file_path: return
+
+        if not os.path.exists("uploads"): os.makedirs("uploads")
+        dest = os.path.join("uploads", f"profile_{self.current_user_id}{os.path.splitext(file_path)[1]}")
+        shutil.copy(file_path, dest)
+
+        database.update_profile_path(self.current_user_id, dest)
+
+        self.show_profile_view()
 
     def remove_profile_photo(self):
         try:
@@ -268,6 +291,7 @@ class MovieManagementSystem:
         self.movie_table = ui_helpers.setup_movie_table(table_f); self.movie_table.bind("<<TreeviewSelect>>", self.on_tree_select)
         return main_c
 
+    # Movie actions
     def add_movie(self): ui_helpers.add_movie_logic(self.current_user_id, self.title_var.get(), self.release_year_var.get(), self.status_var.get(), self.remarks_var.get(), self.refresh_table, self.clear_fields)
     def update_movie(self): ui_helpers.update_movie_logic(self.selected_id, self.title_var.get(), self.release_year_var.get(), self.status_var.get(), self.remarks_var.get(), self.refresh_table)
     def delete_movie(self): ui_helpers.delete_movie_logic(self.selected_id, self.refresh_table, self.clear_fields)

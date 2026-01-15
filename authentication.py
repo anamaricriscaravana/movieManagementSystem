@@ -44,94 +44,132 @@ class Authentication:
 
     def open_change_username_popup(self):
         win = tk.Toplevel(self.controller.root)
+        win.withdraw()
         win.title("Account Settings")
-        ui_helpers.center_window(win, 500, 550)
         win.configure(bg=self.colors['secondary_bg'])
-        win.grab_set()
         win.resizable(False, False)
+        
+        ui_helpers.center_window(win, 450, 300)
 
         curr_p, new_u, confirm_p = tk.StringVar(), tk.StringVar(), tk.StringVar()
 
-        tk.Label(win, text="UPDATE USERNAME", font=('Segoe UI', 18, 'bold'), 
-                 bg=self.colors['secondary_bg'], fg=self.colors['primary_accent']).pack(pady=(30, 20))
+        tk.Label(win, text="CHANGE USERNAME", font=('Segoe UI', 18, 'bold'), 
+                bg=self.colors['secondary_bg'], fg="white").pack(pady=(30, 20))
 
-        def create_field(label_text, variable, is_pass=False):
-            tk.Label(win, text=label_text, font=('Segoe UI', 11), bg=self.colors['secondary_bg'], fg="white").pack(anchor="w", padx=80, pady=(15, 5))
-            ent = tk.Entry(win, textvariable=variable, font=('Segoe UI', 12), width=35, relief="flat")
-            if is_pass: ent.config(show="*")
-            ent.pack(pady=5)
+        input_container = tk.Frame(win, bg=self.colors['secondary_bg'])
+        input_container.pack(fill="x", padx=40)
+        input_container.grid_columnconfigure(0, weight=1)
+        input_container.grid_columnconfigure(3, weight=1)
 
-        create_field("New Username:", new_u)
-        create_field("Password:", curr_p, is_pass=True)
-        create_field("Re-enter Password:", confirm_p, is_pass=True)
-
+        ui_helpers.create_input_field(input_container, "New Username:", new_u, 0, 
+                             self.controller.font_bold, self.controller.font, self.colors)
+        ui_helpers.create_input_field(input_container, "Password:", curr_p, 1, 
+                                    self.controller.font_bold, self.controller.font, self.colors, show="*")
+        ui_helpers.create_input_field(input_container, "Re-enter Password:", confirm_p, 2, 
+                                    self.controller.font_bold, self.controller.font, self.colors, show="*")
         tk.Button(win, 
-          text="UPDATE", 
-          font=self.controller.font_bold, 
-          bg=self.colors['primary_accent'], 
-          fg="white", 
-          relief="flat", 
-          padx=15, 
-          cursor="hand2",
-          command=lambda: self.process_username_update(curr_p.get(), new_u.get(), confirm_p.get(), win)
-          ).pack(pady=40)
+                  text="Update", 
+                  font=self.controller.font_bold, 
+                  width=20,                    
+                  bg=self.colors['primary_accent'], 
+                  fg="white", 
+                  relief="flat", 
+                  padx=15,                     
+                  cursor="hand2",
+                  command=lambda: self.process_username_update(curr_p.get(), new_u.get(), confirm_p.get(), win)
+                  ).pack(pady=40)
+        
+        win.deiconify()
+        win.grab_set()
 
     def open_change_password_popup(self):
         win = tk.Toplevel(self.controller.root)
+        win.withdraw()
         win.title("Update Password")
-        ui_helpers.center_window(win, 500, 550)
         win.configure(bg=self.colors['secondary_bg'])
-        win.grab_set()
         win.resizable(False, False)
+        
+        ui_helpers.center_window(win, 450, 300)
 
         curr_p, new_p, confirm_p = tk.StringVar(), tk.StringVar(), tk.StringVar()
 
-        tk.Label(win, text="UPDATE PASSWORD", font=('Segoe UI', 18, 'bold'), 
-                 bg=self.colors['secondary_bg'], fg=self.colors['primary_accent']).pack(pady=(30, 20))
+        tk.Label(win, text="CHANGE PASSSWORD", font=('Segoe UI', 18, 'bold'), 
+                bg=self.colors['secondary_bg'], fg="white").pack(pady=(30, 20))
 
-        def create_field(label_text, variable):
-            tk.Label(win, text=label_text, font=('Segoe UI', 11), bg=self.colors['secondary_bg'], fg="white").pack(anchor="w", padx=80, pady=(15, 5))
-            tk.Entry(win, textvariable=variable, font=('Segoe UI', 12), width=35, relief="flat", show="*").pack(pady=5)
+        input_container = tk.Frame(win, bg=self.colors['secondary_bg'])
+        input_container.pack(fill="x", padx=40)
+        input_container.grid_columnconfigure(0, weight=1)
+        input_container.grid_columnconfigure(3, weight=1)
 
-        create_field("Current Password:", curr_p)
-        create_field("New Password:", new_p)
-        create_field("Confirm New Password:", confirm_p)
+        ui_helpers.create_input_field(input_container, "Current Password:", curr_p, 0, 
+                             self.controller.font_bold, self.controller.font, self.colors, show="*")
+        ui_helpers.create_input_field(input_container, "New Password:", new_p, 1, 
+                                    self.controller.font_bold, self.controller.font, self.colors, show="*")
+        ui_helpers.create_input_field(input_container, "Re-enter New Password:", confirm_p, 2, 
+                                    self.controller.font_bold, self.controller.font, self.colors, show="*")
 
         tk.Button(win, 
-          text="UPDATE", 
-          font=self.controller.font_bold, 
-          bg=self.colors['primary_accent'], 
-          fg="white", 
-          relief="flat", 
-          padx=15, 
-          cursor="hand2",
-          command=lambda: self.process_password_update(curr_p.get(), new_p.get(), confirm_p.get(), win)
-          ).pack(pady=40)
+                  text="Update", 
+                  font=self.controller.font_bold, 
+                  width=20,                     
+                  bg=self.colors['primary_accent'], 
+                  fg="white", 
+                  relief="flat", 
+                  padx=15, 
+                  cursor="hand2",
+                  command=lambda: self.process_password_update(curr_p.get(), new_p.get(), confirm_p.get(), win)
+                  ).pack(pady=40)
+        
+        win.deiconify()
+        win.grab_set()
           
     def render_settings(self):
-        header = tk.Frame(self.container, bg=self.colors['primary_bg'], pady=20); header.pack(fill="x", padx=40)
-        tk.Button(header, text="← HOME", font=('Segoe UI', 10, 'bold'), bg=self.colors['primary_accent'], 
-                  fg="white", relief="flat", padx=15, command=self.controller.show_main_app, cursor="hand2").pack(side="left")
+        header = tk.Frame(self.container, bg=self.colors['primary_bg'], pady=20) 
+        header.pack(fill="x", padx=40)
+
+        tk.Button(header, text="← HOME", font=self.controller.font_bold, 
+                bg=self.colors['primary_accent'], fg="white", relief="flat", 
+                padx=15, command=self.controller.show_main_app, cursor="hand2").pack(side="left")
         
         main_frame = tk.Frame(self.container, bg=self.colors['primary_bg'])
         main_frame.place(relx=0.5, rely=0.5, anchor="center")
         
         box = tk.Frame(main_frame, bg=self.colors['secondary_bg'], padx=40, pady=40, 
-                       highlightbackground="white", highlightthickness=1); box.pack()
+                    highlightbackground="white", highlightthickness=1)
+        box.pack()
 
-        tk.Label(box, text="ACCOUNT SECURITY", font=('Segoe UI', 14, 'bold'), bg=self.colors['secondary_bg'], fg=self.colors['primary_accent']).pack(pady=(0,10))
-        tk.Button(box, text="Change Username", font=10, width=30, bg=self.colors['input_bg'], fg="white", command=self.controller.open_change_username).pack(pady=5)
-        tk.Button(box, text="Change Password", font=10, width=30, bg=self.colors['input_bg'], fg="white", command=self.controller.open_change_password).pack(pady=5)
+        tk.Label(box, text="ACCOUNT SECURITY", font=self.controller.font_bold, 
+                bg=self.colors['secondary_bg'], fg="white").pack(pady=(0,10))
         
-        tk.Button(box, text="Update Profile Photo", font=10, width=30, bg=self.colors['input_bg'], fg="white", command=self.controller.change_profile_photo).pack(pady=5)
-        tk.Button(box, text="Remove Profile Photo", font=10, width=30, bg=self.colors['delete_button'], fg="black", command=self.controller.remove_profile_photo).pack(pady=5)
-    
+        tk.Button(box, text="Change Username", font=self.controller.font, width=30, 
+                bg=self.colors['input_bg'], fg="white", relief="flat", cursor="hand2", 
+                command=self.controller.open_change_username).pack(pady=5)
+        
+        tk.Button(box, text="Change Password", font=self.controller.font, width=30, 
+                bg=self.colors['input_bg'], fg="white", relief="flat", cursor="hand2", 
+                command=self.controller.open_change_password).pack(pady=5)
+        
+        tk.Button(box, text="Update Profile Photo", font=self.controller.font, width=30, 
+                bg=self.colors['input_bg'], fg="white", relief="flat", cursor="hand2", 
+                command=self.controller.change_profile_photo).pack(pady=5)
+        
+        tk.Button(box, text="Remove Profile Photo", font=self.controller.font, width=30, 
+                bg=self.colors['delete_button'], fg="black", relief="flat", cursor="hand2", 
+                command=self.controller.remove_profile_photo).pack(pady=5)
+
         tk.Frame(box, height=1, bg="gray", width=250).pack(pady=20)
 
-        tk.Label(box, text="DOWNLOAD DATA", font=('Segoe UI', 14, 'bold'), bg=self.colors['secondary_bg'], fg=self.colors['primary_accent']).pack(pady=(0,10))
-        tk.Button(box, text="PDF Report", font=10, width=30, bg=self.colors['add_button'], fg="black", command=self.controller.export_as_pdf).pack(pady=5)
-        tk.Button(box, text="CSV Report", font=10, width=30, bg=self.colors['update_button'], fg="black", command=self.controller.export_as_csv).pack(pady=5)
-
+        tk.Label(box, text="DOWNLOAD DATA", font=self.controller.font_bold, 
+                bg=self.colors['secondary_bg'], fg="white").pack(pady=(0,10))
+        
+        tk.Button(box, text="PDF Report", font=self.controller.font, width=30, 
+                bg=self.colors['add_button'], fg="black", relief="flat", cursor="hand2", 
+                command=self.controller.export_as_pdf).pack(pady=5)
+        
+        tk.Button(box, text="CSV Report", font=self.controller.font, width=30, 
+                bg=self.colors['update_button'], fg="black", relief="flat", cursor="hand2", 
+                command=self.controller.export_as_csv).pack(pady=5)
+        
     def process_username_update(self, current_pass, new_username, confirm_pass, win):
         trimmed_u = new_username.strip()
         if not current_pass or not trimmed_u or not confirm_pass:
